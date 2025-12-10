@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../LostLink/lib/models/item_model.dart';
-// Asumsi ClaimDialog ada di sini, dibuat oleh Anggota 4
-import '../../../LostLink/lib/widgets/claim_dialog.dart'; 
+import '../../models/item_model.dart';
+import '../../widgets/claim_dialog.dart'; 
 
 class ItemDetailScreen extends StatelessWidget {
   final ItemModel item;

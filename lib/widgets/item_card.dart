@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../LostLink/lib/models/item_model.dart';
+import '../models/item_model.dart';
 import '../screens/user/item_detail_screen.dart'; 
 
 class ItemCard extends StatelessWidget {

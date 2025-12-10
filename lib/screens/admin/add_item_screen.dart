@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/item_model.dart'; 
+import '../../services/firestore_service.dart';
 
 class AddItemScreen extends StatefulWidget {
   const AddItemScreen({Key? key}) : super(key: key);
@@ -30,24 +31,25 @@ class _AddItemScreenState extends State<AddItemScreen> {
     super.dispose();
   }
 
-  void _submitData() {
+  void _submitData() async { 
     if (_formKey.currentState!.validate()) {
-      // 1. Bungkus data ke dalam Model
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Menyimpan data...')));
+
       final newItem = ItemModel(
         title: _titleController.text,
         description: _descController.text,
         location: _locationController.text,
         status: _selectedStatus,
-        imageUrl: _dummyImageUrl, 
+        imageUrl: _dummyImageUrl, // Sementara dummy dulu gpp
       );
 
-      // TODO: Panggil State Management di sini (Provider/Bloc/GetX)
-
-      print("Data Siap Dikirim ke Backend: ${newItem.toJson()}");
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Memproses data...')),
-      );
+      try {
+        await FirestoreService().addItem(newItem); 
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Berhasil disimpan!')));
+        Navigator.pop(context); 
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/home_provider.dart';
 import '../../widgets/item_card.dart';
-import '../../../LostLink/lib/widgets/custom_search_bar.dart'; // Dari Anggota 4/Template
+import '../../widgets/custom_search_bar.dart'; 
 
 class HomeFeed extends StatelessWidget {
   const HomeFeed({Key? key}) : super(key: key);

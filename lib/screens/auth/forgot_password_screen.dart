@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import 'register_screen.dart';
-import 'forgot_password_screen.dart';
-import '../user/home_feed.dart'; 
 
-class LoginScreen extends StatefulWidget {
+class ForgotPasswordScreen extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  // Warna Utama
-  final Color primaryBlue = Color(0xFF2196F3); 
-  final Color darkBlue = Color(0xFF1565C0);  
+  final Color primaryBlue = Color(0xFF2196F3);
 
   @override
   Widget build(BuildContext context) {
@@ -24,64 +17,57 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Container(
-          height: MediaQuery.of(context).size.height,
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
-              Center(
-                child: Icon(Icons.find_in_page_rounded, size: 80, color: primaryBlue),
-              ),
               SizedBox(height: 20),
+              // Ikon Besar
+              Center(
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50], 
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.lock_reset_rounded, size: 80, color: primaryBlue),
+                ),
+              ),
+              SizedBox(height: 30),
+              
               Text(
-                "Welcome Back!",
+                "Lupa Password?",
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
+              SizedBox(height: 10),
               Text(
-                "Masuk untuk melanjutkan pencarian.",
+                "Jangan panik. Masukkan email kampus kamu, kami akan mengirimkan link untuk mereset password.",
                 style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
               SizedBox(height: 40),
 
-              // Form Input
               _buildTextField(
                 controller: _emailController,
-                label: "Email Kampus",
+                label: "Email Terdaftar",
                 icon: Icons.email_outlined,
               ),
-              SizedBox(height: 20),
-              _buildTextField(
-                controller: _passwordController,
-                label: "Password",
-                icon: Icons.lock_outline,
-                isPassword: true,
-              ),
-              SizedBox(height: 10),
+              
+              SizedBox(height: 40),
 
-              // Lupa Password
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(builder: (_) => ForgotPasswordScreen())
-                    );
-                  },
-                  child: Text("Lupa Password?", style: TextStyle(color: primaryBlue)),
-                ),
-              ),
-              SizedBox(height: 30),
-
-              // Tombol Login
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -89,14 +75,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: authProvider.isLoading
                       ? null
                       : () async {
-                          String? error = await authProvider.login(
+                          if (_emailController.text.isEmpty) {
+                             ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Email tidak boleh kosong")),
+                            );
+                            return;
+                          }
+
+                          String? error = await authProvider.resetPassword(
                             _emailController.text.trim(),
-                            _passwordController.text.trim(),
                           );
+                          
                           if (error != null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(error), backgroundColor: Colors.red),
                             );
+                          } else {
+                            // Sukses
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Link reset terkirim! Cek email kamu."),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                            Navigator.pop(context); 
                           }
                         },
                   style: ElevatedButton.styleFrom(
@@ -109,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: authProvider.isLoading
                       ? CircularProgressIndicator(color: Colors.white)
                       : Text(
-                          "MASUK",
+                          "KIRIM LINK RESET",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -117,31 +119,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                 ),
-              ),
-
-              SizedBox(height: 20),
-
-              // Link ke Register
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Belum punya akun? ", style: TextStyle(color: Colors.grey[600])),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => RegisterScreen()),
-                      );
-                    },
-                    child: Text(
-                      "Daftar Sekarang",
-                      style: TextStyle(
-                        color: darkBlue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
@@ -154,11 +131,10 @@ class _LoginScreenState extends State<LoginScreen> {
     required TextEditingController controller,
     required String label,
     required IconData icon,
-    bool isPassword = false,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50], 
+        color: Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -170,7 +146,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       child: TextField(
         controller: controller,
-        obscureText: isPassword,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.blueAccent),
           labelText: label,

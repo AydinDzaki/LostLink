@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../../LostLink/lib/models/item_model.dart';
+import '../models/item_model.dart';
 import '../services/firestore_service.dart';
 
 class HomeProvider with ChangeNotifier {

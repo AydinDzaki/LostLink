@@ -1,28 +1,45 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../LostLink/lib/models/item_model.dart';
+import '../models/item_model.dart'; 
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // ... (Fungsi Anggota 2 seperti addItem, deleteItem, dll. ada di sini) ...
+  // Fix
+  // Fungsi Tambah Barang (Untuk Admin)
+  // Wajib ada supaya add_item_screen.dart bisa jalan
+  Future<void> addItem(ItemModel item) async {
+    Map<String, dynamic> data = item.toJson();
+    
+    // plus imestamp biar tahu kapan diposting
+    data['createdAt'] = FieldValue.serverTimestamp(); 
 
-  // [TUGAS ANGGOTA 3] Fungsi untuk mengambil semua barang yang BELUM DIKLAIM
+    await _firestore.collection('items').add(data);
+  }
+
+  // Fix
+  // Ambil Data Barang (Untuk User Home)
   Stream<List<ItemModel>> getItems() {
     return _firestore.collection('items')
-        // Filter: Hanya tampilkan yang statusnya BUKAN 'Diklaim' dan BUKAN 'Selesai'
-        .where('status', isNotEqualTo: 'Diklaim') 
-        .where('status', isNotEqualTo: 'Selesai')
+        .where('status', isEqualTo: 'Hilang') 
         .snapshots()
         .map((snapshot) {
           return snapshot.docs.map((doc) {
-            // Gabungkan ID dokumen (doc.id) ke dalam ItemModel
             final data = doc.data();
-            // Penting: Pastikan ItemModel.fromJson bisa menangani 'id'
             data['id'] = doc.id; 
             return ItemModel.fromJson(data);
           }).toList();
         });
   }
 
-  // Fungsi searchItems tidak diimplementasikan di sini, tapi di provider (client-side)
+  // Update Status buat Admin klo approve klaim
+  Future<void> updateStatus(String itemId, String newStatus) async {
+    await _firestore.collection('items').doc(itemId).update({
+      'status': newStatus,
+    });
+  }
+
+  // Hapus Barang buat Admin
+  Future<void> deleteItem(String itemId) async {
+    await _firestore.collection('items').doc(itemId).delete();
+  }
 }

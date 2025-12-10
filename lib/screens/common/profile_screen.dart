@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  // Data Dummy: Ganti ini dengan data aktual dari state/provider aplikasi Anda
-  final String _userEmail = "user.contoh@emailku.com";
-  // Anda juga bisa menambahkan variabel lain seperti nama, foto profil, dll.
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user; 
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil Pengguna'),
@@ -23,9 +19,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // TODO: Aksi navigasi ke halaman Pengaturan
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Buka Pengaturan')),
+                const SnackBar(content: Text('Fitur Pengaturan belum tersedia')),
               );
             },
           ),
@@ -37,19 +32,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              // --- Bagian Foto Profil ---
-              const CircleAvatar(
+              // Bagian Foto Profil
+              CircleAvatar(
                 radius: 60,
-                backgroundImage: NetworkImage(
-                  'https://via.placeholder.com/150', // Ganti dengan URL foto profil aktual
-                ),
-                backgroundColor: Colors.grey,
+                backgroundColor: Colors.grey[300],
+                backgroundImage: user?.photoURL != null 
+                    ? NetworkImage(user!.photoURL!) 
+                    : null,
+                child: user?.photoURL == null 
+                    ? const Icon(Icons.person, size: 60, color: Colors.grey) 
+                    : null,
               ),
               const SizedBox(height: 15),
 
-              // --- Bagian Email Pengguna ---
+              // Bagian Email Pengguna
               Text(
-                _userEmail,
+                user?.email ?? "Tamu / Belum Login", 
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -57,23 +55,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: 5),
-              const Text(
-                'Email Akun',
-                style: TextStyle(
+              // Display Role Pengguna
+              Text(
+                'Role: ${authProvider.userRole.toUpperCase()}', 
+                style: const TextStyle(
                   fontSize: 14,
-                  color: Colors.grey,
+                  color: Colors.blueGrey,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 30),
 
-              // --- Bagian Detail atau Aksi Lain ---
+              // Menu Profil
               const Divider(),
               _buildProfileItem(
                 icon: Icons.person,
                 title: 'Informasi Pribadi',
                 subtitle: 'Nama, Tanggal Lahir, dll.',
                 onTap: () {
-                  // TODO: Aksi untuk Informasi Pribadi
+                   ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Fitur edit profil belum tersedia')),
+                  );
                 },
               ),
               _buildProfileItem(
@@ -81,20 +83,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: 'Ganti Kata Sandi',
                 subtitle: 'Kelola keamanan akun Anda',
                 onTap: () {
-                  // TODO: Aksi untuk Ganti Kata Sandi
+                   ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Silakan gunakan fitur Lupa Password di halaman Login')),
+                  );
                 },
               ),
+              
+              // Tombol Logout
               _buildProfileItem(
                 icon: Icons.logout,
                 title: 'Keluar (Logout)',
                 subtitle: 'Hapus sesi Anda dari perangkat ini',
-                onTap: () {
-                  // TODO: Logika Logout di sini
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Melakukan Logout...')),
-                  );
-                },
                 color: Colors.red,
+                onTap: () {
+                  // Panggil fungsi logout di Provider
+                  authProvider.logout();
+                  
+                  // Tutup halaman profile
+                  Navigator.pop(context);
+                  
+                },
               ),
             ],
           ),
