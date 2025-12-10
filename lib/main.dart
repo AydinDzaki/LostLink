@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart'; 
 import 'providers/auth_provider.dart';
+import 'providers/home_provider.dart'; 
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/user/home_feed.dart';
-import 'providers/home_provider.dart';
+import 'screens/admin/admin_home.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,10 +24,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => HomeProvider()), 
       ],
       child: MaterialApp(
-        title: 'Lost and Found',
+        title: 'LostLink',
         theme: ThemeData(primarySwatch: Colors.blue),
         home: AuthWrapper(),
       ),
@@ -33,46 +35,40 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Wrapper buat cek klo user sudah login atau belum
-// Wrapper untuk mengecek Login & Role
 class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthProvider>(context, listen: false); // Pakai Provider
+    final authService = Provider.of<AuthProvider>(context, listen: false);
 
     return StreamBuilder(
       stream: AuthService().authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         
         if (snapshot.hasData) {
-          // User sedang login, cek Role-nya apa?
-          // Kita butuh FutureBuilder lagi atau cek variable di Provider
-          // Cara simpel: Panggil fungsi cek role (ideally logic ini di Provider)
-          
           return FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance
+            future: FirebaseFirestore.instance 
                 .collection('users')
                 .doc(snapshot.data!.uid)
                 .get(),
             builder: (context, userSnapshot) {
               if (userSnapshot.connectionState == ConnectionState.waiting) {
-                 return Scaffold(body: Center(child: CircularProgressIndicator()));
+                 return const Scaffold(body: Center(child: CircularProgressIndicator()));
               }
 
               if (userSnapshot.hasData && userSnapshot.data!.exists) {
-                String role = userSnapshot.data!.get('role');
+                var data = userSnapshot.data!.data() as Map<String, dynamic>?;
+                String role = data?['role'] ?? 'user';
                 
                 if (role == 'admin') {
-                  return AdminHome(); // Buat file ini nanti: lib/screens/admin/admin_home.dart
+                  return AdminHome(); 
                 } else {
-                  return HomeFeed(); // Halaman User Biasa
+                  return HomeFeed();
                 }
               }
-              
-              return HomeFeed(); // Fallback
+              return const HomeFeed();
             },
           );
         } else {

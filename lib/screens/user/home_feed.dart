@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/home_provider.dart';
 import '../../widgets/item_card.dart';
 import '../../widgets/custom_search_bar.dart'; 
+import '../../widgets/claim_dialog.dart';
 
 class HomeFeed extends StatelessWidget {
   const HomeFeed({Key? key}) : super(key: key);
