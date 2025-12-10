@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "760594344892",
+    "project_id": "lost-link-2064",
+    "storage_bucket": "lost-link-2064.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760594344892:android:19da0cb8ecf37aee8919b9",
+        "android_client_info": {
+          "package_name": "com.example.lost_link"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUi7UwCPH3_N5UVygzLB6JRvb4vm2lLWc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
