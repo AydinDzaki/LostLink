@@ -10,6 +10,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/user/home_feed.dart';
 import 'screens/admin/admin_home.dart';
 import 'providers/item_provider.dart';
+import 'providers/claim_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,9 +28,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => ItemProvider()),
+        ChangeNotifierProvider(create: (_) => ClaimProvider()),
       ],
       child: MaterialApp(
-        title: 'Lost and Found',
+        title: 'LostLink',
         theme: ThemeData(primarySwatch: Colors.blue),
         home: AuthWrapper(),
       ),

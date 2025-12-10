@@ -55,33 +55,25 @@ class ItemDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-      // Tombol Klaim yang akan memicu ClaimDialog
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
           onPressed: () {
-            // Pastikan item.id tidak null saat tombol diklik
-            if (item.id != null) {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  // Memicu dialog dari Anggota 4 dan meneruskan ID Item
-                  return ClaimDialog(itemId: item.id!); 
-                },
-              );
-            } else {
-               ScaffoldMessenger.of(context).showSnackBar(
-                 const SnackBar(content: Text('ID barang tidak ditemukan.')),
-               );
-            }
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ClaimDialog(item: item); 
+              },
+            );
           },
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.red, 
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           child: const Text(
-            'Klaim Barang Ini',
-            style: TextStyle(fontSize: 18, color: Colors.white),
+            'Saya Pemiliknya (Klaim)',
+            style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ),
       ),

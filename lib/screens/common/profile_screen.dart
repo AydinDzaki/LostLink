@@ -9,22 +9,19 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user; 
+    final String role = authProvider.userRole.isNotEmpty ? authProvider.userRole : 'user';
+    final bool isAdmin = role == 'admin';
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Profil Pengguna'),
-        backgroundColor: Colors.blueGrey,
+        title: const Text('Profil Saya', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Fitur Pengaturan belum tersedia')),
-              );
-            },
-          ),
-        ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -32,76 +29,72 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              // Bagian Foto Profil
+              // --- Foto Profil ---
               CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.grey[300],
-                backgroundImage: user?.photoURL != null 
-                    ? NetworkImage(user!.photoURL!) 
-                    : null,
-                child: user?.photoURL == null 
-                    ? const Icon(Icons.person, size: 60, color: Colors.grey) 
-                    : null,
+                radius: 50,
+                backgroundColor: isAdmin ? Colors.red[100] : Colors.blue[100],
+                child: Icon(
+                  Icons.person, 
+                  size: 50, 
+                  color: isAdmin ? Colors.red : Colors.blue
+                ),
               ),
               const SizedBox(height: 15),
 
-              // Bagian Email Pengguna
+              // --- Email ---
               Text(
-                user?.email ?? "Tamu / Belum Login", 
+                user?.email ?? "Tamu",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
-              const SizedBox(height: 5),
-              // Display Role Pengguna
-              Text(
-                'Role: ${authProvider.userRole.toUpperCase()}', 
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.blueGrey,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(height: 8),
+
+              // --- Badge Role ---
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isAdmin ? Colors.red : Colors.blue,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  role.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white, 
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12
+                  ),
                 ),
               ),
-              const SizedBox(height: 30),
+              
+              const SizedBox(height: 40),
 
-              // Menu Profil
+              // --- Menu ---
               const Divider(),
               _buildProfileItem(
-                icon: Icons.person,
-                title: 'Informasi Pribadi',
-                subtitle: 'Nama, Tanggal Lahir, dll.',
+                icon: Icons.settings,
+                title: 'Pengaturan Akun',
                 onTap: () {
                    ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Fitur edit profil belum tersedia')),
-                  );
-                },
-              ),
-              _buildProfileItem(
-                icon: Icons.lock,
-                title: 'Ganti Kata Sandi',
-                subtitle: 'Kelola keamanan akun Anda',
-                onTap: () {
-                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Silakan gunakan fitur Lupa Password di halaman Login')),
+                    const SnackBar(content: Text('Fitur belum tersedia')),
                   );
                 },
               ),
               
-              // Tombol Logout
+              // --- LOGOUT ---
               _buildProfileItem(
                 icon: Icons.logout,
                 title: 'Keluar (Logout)',
-                subtitle: 'Hapus sesi Anda dari perangkat ini',
                 color: Colors.red,
                 onTap: () {
-                  // Panggil fungsi logout di Provider
+                  // 1. Panggil Logout
                   authProvider.logout();
                   
-                  // Tutup halaman profile
+                  // 2. Tutup Halaman Profil
                   Navigator.pop(context);
-                  
+
                 },
               ),
             ],
@@ -111,19 +104,16 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Widget pembantu untuk item-item di daftar profil
   Widget _buildProfileItem({
     required IconData icon,
     required String title,
-    required String subtitle,
     required VoidCallback onTap,
-    Color color = Colors.black,
+    Color color = Colors.black87,
   }) {
     return ListTile(
       leading: Icon(icon, color: color),
       title: Text(title, style: TextStyle(fontWeight: FontWeight.w500, color: color)),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
       onTap: onTap,
     );
   }

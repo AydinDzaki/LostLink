@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/item_model.dart';
-import '../../services/auth_service.dart';
 import '../../services/firestore_service.dart';
 import 'add_item_screen.dart';
+import '../common/profile_screen.dart'; 
+import 'admin_claim_screen.dart';       
 
 class AdminHome extends StatelessWidget {
   const AdminHome({Key? key}) : super(key: key);
@@ -13,21 +13,42 @@ class AdminHome extends StatelessWidget {
     final FirestoreService _firestoreService = FirestoreService();
 
     return Scaffold(
-      backgroundColor: Colors.grey[100], // Background agak abu biar konten nimbul
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text("Admin Dashboard"),
-        backgroundColor: Colors.red[800], // Warna Merah Admin
+        backgroundColor: Colors.red[800],
         elevation: 0,
         actions: [
+          // TOMBOL NOTIFIKASI KLAIM
           IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: "Logout",
-            onPressed: () => AuthService().signOut(),
-          )
+            icon: const Icon(Icons.notifications_active, size: 28),
+            tooltip: "Cek Permintaan Klaim",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AdminClaimScreen()),
+              );
+            },
+          ),
+          
+          // 2. TOMBOL PROFIL
+          IconButton(
+            icon: const Icon(Icons.account_circle, size: 30),
+            tooltip: "Profil Admin",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 10),
         ],
       ),
+      
+      // LIST DATA BARANG
       body: StreamBuilder<List<ItemModel>>(
-        stream: _firestoreService.getAllItems(), // Pakai fungsi baru tadi
+        stream: _firestoreService.getAllItems(), // Ambil semua data tanpa filter
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -45,7 +66,7 @@ class AdminHome extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. HEADER STATISTIK
+              // HEADER STATISTIK 
               _buildHeaderStats(hilangCount, temuCount),
 
               const Padding(
@@ -56,7 +77,7 @@ class AdminHome extends StatelessWidget {
                 ),
               ),
 
-              // 2. LIST BARANG (CRUD)
+              // LIST ITEM
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -71,8 +92,8 @@ class AdminHome extends StatelessWidget {
           );
         },
       ),
-      
-      // TOMBOL TAMBAH MELAYANG
+
+      // TOMBOL TAMBAH BARANG
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
@@ -87,7 +108,8 @@ class AdminHome extends StatelessWidget {
     );
   }
 
-  // Widget Header Statistik
+  // --- WIDGET HELPERS ---
+
   Widget _buildHeaderStats(int hilang, int temu) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -125,7 +147,6 @@ class AdminHome extends StatelessWidget {
     );
   }
 
-  // Widget Tampilan Kosong
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -139,7 +160,6 @@ class AdminHome extends StatelessWidget {
     );
   }
 
-  // Widget Card Barang Admin
   Widget _buildAdminItemCard(BuildContext context, ItemModel item, FirestoreService service) {
     return Card(
       elevation: 3,
@@ -151,11 +171,14 @@ class AdminHome extends StatelessWidget {
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: item.imageUrl.isNotEmpty
-              ? Image.network(item.imageUrl, width: 60, height: 60, fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => Container(width: 60, height: 60, color: Colors.grey[300], child: const Icon(Icons.broken_image)))
+              ? Image.network(
+                  item.imageUrl, 
+                  width: 60, height: 60, fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => Container(width: 60, height: 60, color: Colors.grey[300], child: const Icon(Icons.broken_image)),
+                )
               : Container(width: 60, height: 60, color: Colors.grey[300], child: const Icon(Icons.image)),
         ),
-        // INFO UTAMA
+        // JUDUL & INFO
         title: Text(
           item.title,
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -167,7 +190,6 @@ class AdminHome extends StatelessWidget {
             const SizedBox(height: 4),
             Text("Lokasi: ${item.location}", style: const TextStyle(fontSize: 12)),
             const SizedBox(height: 4),
-            // Badge Status
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
@@ -186,19 +208,17 @@ class AdminHome extends StatelessWidget {
             ),
           ],
         ),
-        // AKSI (EDIT / HAPUS)
+        // TOMBOL AKSI 
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Tombol Ubah Status (Ceklis)
             IconButton(
               icon: Icon(Icons.check_circle, color: item.status == 'Hilang' ? Colors.grey : Colors.green),
-              tooltip: "Tandai Selesai",
+              tooltip: "Tandai Selesai / Hilang",
               onPressed: () {
                 service.updateStatus(item.id!, item.status == 'Hilang' ? 'Ditemukan' : 'Hilang');
               },
             ),
-            // Tombol Hapus (Sampah)
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.redAccent),
               tooltip: "Hapus Permanen",
